@@ -6,7 +6,7 @@ pr:
       - main
 
 pool:
-  vmImage: ubuntu-latest
+  name: self-hosted-local
 
 variables:
   - group: terraform-dev-vars
