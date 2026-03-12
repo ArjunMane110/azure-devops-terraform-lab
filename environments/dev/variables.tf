@@ -1,24 +1,45 @@
 variable "resource_group_name" {
-  description = "Name of the resource group"
-  type        = string
+  type = string
 }
 
 variable "location" {
-  description = "Azure region"
-  type        = string
+  type = string
 }
 
 variable "vnet_name" {
-  description = "Name of the Virtual Network"
-  type        = string
+  type = string
 }
 
 variable "vnet_address_space" {
-  description = "Address space for the VNet"
-  type        = list(string)
+  type = list(string)
+}
+
+variable "subnet_name" {
+  type = string
+}
+
+variable "subnet_prefix" {
+  type = string
+}
+
+variable "vm_name" {
+  type = string
+}
+
+variable "vm_size" {
+  type    = string
+  default = "Standard_B1s"
+}
+
+variable "admin_username" {
+  type = string
+}
+
+variable "admin_password" {
+  type      = string
+  sensitive = true
 }
 
 variable "environment" {
-  description = "Environment tag"
-  type        = string
+  type = string
 }
