@@ -17,6 +17,7 @@ resource "azurerm_network_interface" "this" {
 
 resource "azurerm_windows_virtual_machine" "this" {
   name                = var.vm_name
+  computer_name       = "vmdevopsdev01"
   location            = var.location
   resource_group_name = var.resource_group_name
   size                = var.vm_size
