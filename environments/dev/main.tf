@@ -22,15 +22,27 @@ resource "azurerm_resource_group" "main" {
   }
 }
 
-resource "azurerm_virtual_network" "main" {
-  name                = var.vnet_name
+module "vnet" {
+  source = "../../modules/vnet"
+
+  vnet_name           = var.vnet_name
   location            = azurerm_resource_group.main.location
   resource_group_name = azurerm_resource_group.main.name
   address_space       = var.vnet_address_space
+  subnet_name         = var.subnet_name
+  subnet_prefix       = var.subnet_prefix
+  environment         = var.environment
+}
 
-  tags = {
-    Environment = var.environment
-    ManagedBy   = "Terraform"
-    Project     = "devops-lab"
-  }
+module "vm" {
+  source = "../../modules/vm"
+
+  vm_name             = var.vm_name
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+  vm_size             = var.vm_size
+  admin_username      = var.admin_username
+  admin_password      = var.admin_password
+  subnet_id           = module.vnet.subnet_id
+  environment         = var.environment
 }
