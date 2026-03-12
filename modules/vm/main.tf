@@ -15,7 +15,7 @@ resource "azurerm_network_interface" "this" {
   }
 }
 
-resource "azurerm_windows_virtual_machine" "this" {
+resource "azurerm_windows_virtual_machine" "win-vm" {
   name                = var.vm_name
   computer_name       = "vmdevopsdev01"
   location            = var.location
