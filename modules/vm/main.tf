@@ -1,5 +1,5 @@
 resource "azurerm_network_interface" "this" {
-  name                = "${var.vm_name}-nic"
+  name                = "vm-devops-dev-01-nic"
   location            = var.location
   resource_group_name = var.resource_group_name
 
