@@ -1,11 +1,11 @@
 output "vm_id" {
   description = "ID of the Virtual Machine"
-  value       = azurerm_windows_virtual_machine.this.id
+  value       = azurerm_windows_virtual_machine.win-vm.id
 }
 
 output "vm_name" {
   description = "Name of the Virtual Machine"
-  value       = azurerm_windows_virtual_machine.this.name
+  value       = azurerm_windows_virtual_machine.win-vm.name
 }
 
 output "private_ip" {
