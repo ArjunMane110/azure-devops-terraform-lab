@@ -7,7 +7,7 @@ tfplan
 *.tfplan
 
 # Secrets
-*.tfvars
+# *.tfvars
 .env
 
 # OS
