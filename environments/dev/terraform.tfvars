@@ -1,5 +1,5 @@
 resource_group_name = "rg-devops-lab-dev"
-location            = "East US"
+location            = "Central US"
 vnet_name           = "vnet-devops-lab-dev"
 vnet_address_space  = ["10.0.0.0/16"]
 subnet_name         = "snet-devops-lab-dev"
