@@ -49,3 +49,8 @@ variable "create_public_ip" {
   type        = bool
   default     = false
 }
+
+variable "storage_account_name" {
+  description = "Name of the storage account"
+  type        = string
+}

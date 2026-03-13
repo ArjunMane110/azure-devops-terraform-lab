@@ -47,3 +47,12 @@ module "vm" {
   environment         = var.environment
   create_public_ip    = var.create_public_ip
 }
+
+module "storage" {
+  source = "../../modules/storage"
+
+  storage_account_name = var.storage_account_name
+  location             = azurerm_resource_group.main.location
+  resource_group_name  = azurerm_resource_group.main.name
+  environment          = var.environment
+}
