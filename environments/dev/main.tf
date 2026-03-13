@@ -56,3 +56,38 @@ module "storage" {
   resource_group_name  = azurerm_resource_group.main.name
   environment          = var.environment
 }
+
+module "nsg" {
+  source = "../../modules/nsg"
+
+  nsg_name            = var.nsg_name
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+  subnet_id           = module.vnet.subnet_id
+  environment         = var.environment
+
+  security_rules = [
+    {
+      name                       = "Allow-RDP"
+      priority                   = 100
+      direction                  = "Inbound"
+      access                     = "Allow"
+      protocol                   = "Tcp"
+      source_port_range          = "*"
+      destination_port_range     = "3389"
+      source_address_prefix      = "*"
+      destination_address_prefix = "*"
+    },
+    {
+      name                       = "Allow-HTTP"
+      priority                   = 110
+      direction                  = "Inbound"
+      access                     = "Allow"
+      protocol                   = "Tcp"
+      source_port_range          = "*"
+      destination_port_range     = "80"
+      source_address_prefix      = "*"
+      destination_address_prefix = "*"
+    }
+  ]
+}
