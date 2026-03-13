@@ -16,7 +16,7 @@ variable "resource_group_name" {
 variable "vm_size" {
   description = "Size of the VM"
   type        = string
-  default     = "Standard_B1s"
+  default     = "Standard_D2s_v3"
 }
 
 variable "admin_username" {
@@ -38,4 +38,10 @@ variable "subnet_id" {
 variable "environment" {
   description = "Environment tag"
   type        = string
+}
+
+variable "create_public_ip" {
+  description = "Whether to create a public IP for the VM"
+  type        = bool
+  default     = false
 }

@@ -1,3 +1,17 @@
+resource "azurerm_public_ip" "this" {
+  count               = var.create_public_ip ? 1 : 0
+  name                = "${var.vm_name}-pip"
+  location            = var.location
+  resource_group_name = var.resource_group_name
+  allocation_method   = "Static"
+  sku                 = "Standard"
+
+  tags = {
+    Environment = var.environment
+    ManagedBy   = "Terraform"
+  }
+}
+
 resource "azurerm_network_interface" "this" {
   name                = "vm-devops-dev-01-nic"
   location            = var.location
@@ -7,6 +21,7 @@ resource "azurerm_network_interface" "this" {
     name                          = "internal"
     subnet_id                     = var.subnet_id
     private_ip_address_allocation = "Dynamic"
+    public_ip_address_id          = var.create_public_ip ? azurerm_public_ip.this[0].id : null
   }
 
   tags = {
@@ -15,7 +30,7 @@ resource "azurerm_network_interface" "this" {
   }
 }
 
-resource "azurerm_windows_virtual_machine" "win-vm" {
+resource "azurerm_windows_virtual_machine" "this" {
   name                = var.vm_name
   computer_name       = "vmdevopsdev01"
   location            = var.location
@@ -36,7 +51,7 @@ resource "azurerm_windows_virtual_machine" "win-vm" {
   source_image_reference {
     publisher = "MicrosoftWindowsServer"
     offer     = "WindowsServer"
-    sku       = "2025-Datacenter"
+    sku       = "2022-Datacenter"
     version   = "latest"
   }
 

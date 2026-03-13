@@ -45,4 +45,5 @@ module "vm" {
   admin_password      = var.admin_password
   subnet_id           = module.vnet.subnet_id
   environment         = var.environment
+  create_public_ip    = var.create_public_ip
 }
