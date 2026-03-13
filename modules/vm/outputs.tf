@@ -1,6 +1,6 @@
 output "vm_id" {
   description = "ID of the Virtual Machine"
-  value       = azurerm_windows_virtual_machine.win-vm.id
+  value       = azurerm_windows_virtual_machine.this.id
 }
 
 output "vm_name" {
