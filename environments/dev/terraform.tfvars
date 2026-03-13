@@ -9,3 +9,4 @@ vm_size             = "Standard_D2s_v3"
 admin_username      = "azureadmin"
 admin_password      = "REDACTED"
 environment         = "dev"
+create_public_ip    = true

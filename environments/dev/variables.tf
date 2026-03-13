@@ -43,3 +43,9 @@ variable "admin_password" {
 variable "environment" {
   type = string
 }
+
+variable "create_public_ip" {
+  description = "Whether to create a public IP"
+  type        = bool
+  default     = false
+}
