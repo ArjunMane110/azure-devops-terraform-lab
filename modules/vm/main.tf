@@ -61,3 +61,16 @@ resource "azurerm_windows_virtual_machine" "this" {
     Project     = "devops-lab"
   }
 }
+
+resource "azurerm_dev_test_global_vm_shutdown_schedule" "this" {
+  virtual_machine_id = azurerm_windows_virtual_machine.this.id
+  location           = var.location
+  enabled            = true
+
+  daily_recurrence_time = "2200"
+  timezone              = "India Standard Time"
+
+  notification_settings {
+    enabled = false
+  }
+}
