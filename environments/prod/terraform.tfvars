@@ -1,0 +1,14 @@
+resource_group_name  = "rg-devops-lab-prod"
+location             = "Central US"
+vnet_name            = "vnet-devops-lab-prod"
+vnet_address_space   = ["10.1.0.0/16"]
+subnet_name          = "snet-devops-lab-prod"
+subnet_prefix        = "10.1.1.0/24"
+vm_name              = "vm-devops-prod-01"
+vm_size              = "Standard_D2s_v3"
+admin_username       = "azureadmin"
+admin_password       = "REDACTED"
+environment          = "prod"
+create_public_ip     = false
+storage_account_name = "stdevopslabprod001"
+nsg_name             = "nsg-devops-lab-prod"
