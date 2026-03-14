@@ -4,12 +4,15 @@ pr:
   branches:
     include:
       - main
+      - dev
 
 pool:
   name: self-hosted-local
 
 variables:
   - group: terraform-dev-vars
+  - name: environment
+    value: 'dev'
 
 stages:
   - stage: Validate
@@ -18,6 +21,26 @@ stages:
       - job: TerraformPlan
         displayName: Init, Validate and Plan
         steps:
+
+          - checkout: self
+
+          - task: PowerShell@2
+            displayName: Set Environment from Target Branch
+            name: SetEnv
+            inputs:
+              targetType: 'inline'
+              script: |
+                $target = "$(System.PullRequest.TargetBranch)"
+                Write-Host "Target branch: $target"
+                if ($target -like "*main*") {
+                  Write-Host "##vso[task.setvariable variable=environment;isOutput=true]prod"
+                  Write-Host "##vso[task.setvariable variable=approvalEnvironment;isOutput=true]prod-environment"
+                  Write-Host "Environment set to prod"
+                } else {
+                  Write-Host "##vso[task.setvariable variable=environment;isOutput=true]dev"
+                  Write-Host "##vso[task.setvariable variable=approvalEnvironment;isOutput=true]dev-environment"
+                  Write-Host "Environment set to dev"
+                }
 
           - task: TerraformInstaller@1
             displayName: Install Terraform
@@ -29,24 +52,24 @@ stages:
             inputs:
               provider: 'azurerm'
               command: 'init'
-              workingDirectory: '$(System.DefaultWorkingDirectory)/environments/dev'
+              workingDirectory: '$(System.DefaultWorkingDirectory)/environments/$(environment)'
               backendServiceArm: 'azdev-service-connection'
               backendAzureRmResourceGroupName: '$(TF_STATE_RG)'
               backendAzureRmStorageAccountName: '$(TF_STATE_SA)'
               backendAzureRmContainerName: '$(TF_STATE_CONTAINER)'
-              backendAzureRmKey: 'dev.terraform.tfstate'
+              backendAzureRmKey: '$(environment).terraform.tfstate'
 
           - task: TerraformTaskV4@4
             displayName: Terraform Validate
             inputs:
               provider: 'azurerm'
               command: 'validate'
-              workingDirectory: '$(System.DefaultWorkingDirectory)/environments/dev'
+              workingDirectory: '$(System.DefaultWorkingDirectory)/environments/$(environment)'
 
           - task: TerraformTaskV4@4
             displayName: Terraform Plan
             inputs:
               provider: 'azurerm'
               command: 'plan'
-              workingDirectory: '$(System.DefaultWorkingDirectory)/environments/dev'
+              workingDirectory: '$(System.DefaultWorkingDirectory)/environments/$(environment)'
               environmentServiceNameAzureRM: 'azdev-service-connection'

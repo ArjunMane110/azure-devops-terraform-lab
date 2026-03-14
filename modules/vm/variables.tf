@@ -45,3 +45,9 @@ variable "create_public_ip" {
   type        = bool
   default     = false
 }
+
+variable "enable_auto_shutdown" {
+  description = "Enable auto shutdown at 10 PM IST"
+  type        = bool
+  default     = true
+}
