@@ -1,6 +1,13 @@
-trigger: none
+parameters:
+  - name: environment
+    displayName: Target Environment
+    type: string
+    default: dev
+    values:
+      - dev
+      - prod
 
-pr:
+trigger:
   branches:
     include:
       - main
@@ -12,35 +19,19 @@ pool:
 variables:
   - group: terraform-dev-vars
   - name: environment
-    value: 'dev'
+    value: ${{ parameters.environment }}
+  - name: approvalEnvironment
+    value: ${{ parameters.environment }}-environment
 
 stages:
-  - stage: Validate
-    displayName: Terraform Validate and Plan
+  - stage: Plan
+    displayName: Terraform Plan - ${{ parameters.environment }}
     jobs:
       - job: TerraformPlan
-        displayName: Init, Validate and Plan
+        displayName: Init and Plan
         steps:
 
           - checkout: self
-
-          - task: PowerShell@2
-            displayName: Set Environment from Target Branch
-            name: SetEnv
-            inputs:
-              targetType: 'inline'
-              script: |
-                $target = "$(System.PullRequest.TargetBranch)"
-                Write-Host "Target branch: $target"
-                if ($target -like "*main*") {
-                  Write-Host "##vso[task.setvariable variable=environment;isOutput=true]prod"
-                  Write-Host "##vso[task.setvariable variable=approvalEnvironment;isOutput=true]prod-environment"
-                  Write-Host "Environment set to prod"
-                } else {
-                  Write-Host "##vso[task.setvariable variable=environment;isOutput=true]dev"
-                  Write-Host "##vso[task.setvariable variable=approvalEnvironment;isOutput=true]dev-environment"
-                  Write-Host "Environment set to dev"
-                }
 
           - task: TerraformInstaller@1
             displayName: Install Terraform
@@ -52,24 +43,70 @@ stages:
             inputs:
               provider: 'azurerm'
               command: 'init'
-              workingDirectory: '$(System.DefaultWorkingDirectory)/environments/$(environment)'
+              workingDirectory: '$(System.DefaultWorkingDirectory)/environments/${{ parameters.environment }}'
               backendServiceArm: 'azdev-service-connection'
               backendAzureRmResourceGroupName: '$(TF_STATE_RG)'
               backendAzureRmStorageAccountName: '$(TF_STATE_SA)'
               backendAzureRmContainerName: '$(TF_STATE_CONTAINER)'
-              backendAzureRmKey: '$(environment).terraform.tfstate'
-
-          - task: TerraformTaskV4@4
-            displayName: Terraform Validate
-            inputs:
-              provider: 'azurerm'
-              command: 'validate'
-              workingDirectory: '$(System.DefaultWorkingDirectory)/environments/$(environment)'
+              backendAzureRmKey: '${{ parameters.environment }}.terraform.tfstate'
 
           - task: TerraformTaskV4@4
             displayName: Terraform Plan
             inputs:
               provider: 'azurerm'
               command: 'plan'
-              workingDirectory: '$(System.DefaultWorkingDirectory)/environments/$(environment)'
+              workingDirectory: '$(System.DefaultWorkingDirectory)/environments/${{ parameters.environment }}'
               environmentServiceNameAzureRM: 'azdev-service-connection'
+              commandOptions: '-out=tfplan'
+
+          - task: PublishPipelineArtifact@1
+            displayName: Publish Plan File
+            inputs:
+              targetPath: '$(System.DefaultWorkingDirectory)/environments/${{ parameters.environment }}/tfplan'
+              artifact: 'tfplan'
+
+  - stage: Apply
+    displayName: Terraform Apply - ${{ parameters.environment }}
+    dependsOn: Plan
+    jobs:
+      - deployment: TerraformApply
+        displayName: Apply with Approval Gate
+        environment: '${{ parameters.environment }}-environment'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+
+                - checkout: self
+
+                - task: TerraformInstaller@1
+                  displayName: Install Terraform
+                  inputs:
+                    terraformVersion: 'latest'
+
+                - task: DownloadPipelineArtifact@2
+                  displayName: Download Plan File
+                  inputs:
+                    artifact: 'tfplan'
+                    path: '$(System.DefaultWorkingDirectory)/environments/${{ parameters.environment }}'
+
+                - task: TerraformTaskV4@4
+                  displayName: Terraform Init
+                  inputs:
+                    provider: 'azurerm'
+                    command: 'init'
+                    workingDirectory: '$(System.DefaultWorkingDirectory)/environments/${{ parameters.environment }}'
+                    backendServiceArm: 'azdev-service-connection'
+                    backendAzureRmResourceGroupName: '$(TF_STATE_RG)'
+                    backendAzureRmStorageAccountName: '$(TF_STATE_SA)'
+                    backendAzureRmContainerName: '$(TF_STATE_CONTAINER)'
+                    backendAzureRmKey: '${{ parameters.environment }}.terraform.tfstate'
+
+                - task: TerraformTaskV4@4
+                  displayName: Terraform Apply
+                  inputs:
+                    provider: 'azurerm'
+                    command: 'apply'
+                    workingDirectory: '$(System.DefaultWorkingDirectory)/environments/${{ parameters.environment }}'
+                    environmentServiceNameAzureRM: 'azdev-service-connection'
+                    commandOptions: 'tfplan'
