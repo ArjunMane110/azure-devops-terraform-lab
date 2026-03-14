@@ -24,23 +24,23 @@ stages:
 
           - checkout: self
 
-          - task: Bash@3
-            displayName: Set Environment from Source Branch
+          - task: PowerShell@2
+            displayName: Set Environment from Target Branch
             name: SetEnv
             inputs:
               targetType: 'inline'
               script: |
-                SOURCE="$(Build.SourceBranchName)"
-                echo "Source branch: $SOURCE"
-                if [[ "$SOURCE" == "main" ]]; then
-                  echo "##vso[task.setvariable variable=environment;isOutput=true]prod"
-                  echo "##vso[task.setvariable variable=approvalEnvironment;isOutput=true]prod-environment"
-                  echo "Environment set to prod"
-                else
-                  echo "##vso[task.setvariable variable=environment;isOutput=true]dev"
-                  echo "##vso[task.setvariable variable=approvalEnvironment;isOutput=true]dev-environment"
-                  echo "Environment set to dev"
-                fi
+                $target = "$(System.PullRequest.TargetBranch)"
+                Write-Host "Target branch: $target"
+                if ($target -like "*main*") {
+                  Write-Host "##vso[task.setvariable variable=environment;isOutput=true]prod"
+                  Write-Host "##vso[task.setvariable variable=approvalEnvironment;isOutput=true]prod-environment"
+                  Write-Host "Environment set to prod"
+                } else {
+                  Write-Host "##vso[task.setvariable variable=environment;isOutput=true]dev"
+                  Write-Host "##vso[task.setvariable variable=approvalEnvironment;isOutput=true]dev-environment"
+                  Write-Host "Environment set to dev"
+                }
 
           - task: TerraformInstaller@1
             displayName: Install Terraform
