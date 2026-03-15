@@ -1,31 +1,14 @@
-parameters:
-  - name: environment
-    displayName: Target Environment
-    type: string
-    default: dev
-    values:
-      - dev
-      - prod
-
-trigger:
-  branches:
-    include:
-      - main
-      - dev
+trigger: none
 
 pool:
   name: self-hosted-local
 
 variables:
   - group: terraform-dev-vars
-  - name: environment
-    value: ${{ parameters.environment }}
-  - name: approvalEnvironment
-    value: ${{ parameters.environment }}-environment
 
 stages:
   - stage: Plan
-    displayName: Terraform Plan - ${{ parameters.environment }}
+    displayName: Terraform Plan - prod
     jobs:
       - job: TerraformPlan
         displayName: Init and Plan
@@ -43,35 +26,35 @@ stages:
             inputs:
               provider: 'azurerm'
               command: 'init'
-              workingDirectory: '$(System.DefaultWorkingDirectory)/environments/${{ parameters.environment }}'
+              workingDirectory: '$(System.DefaultWorkingDirectory)/environments/prod'
               backendServiceArm: 'azdev-service-connection'
               backendAzureRmResourceGroupName: '$(TF_STATE_RG)'
               backendAzureRmStorageAccountName: '$(TF_STATE_SA)'
               backendAzureRmContainerName: '$(TF_STATE_CONTAINER)'
-              backendAzureRmKey: '${{ parameters.environment }}.terraform.tfstate'
+              backendAzureRmKey: 'prod.terraform.tfstate'
 
           - task: TerraformTaskV4@4
             displayName: Terraform Plan
             inputs:
               provider: 'azurerm'
               command: 'plan'
-              workingDirectory: '$(System.DefaultWorkingDirectory)/environments/${{ parameters.environment }}'
+              workingDirectory: '$(System.DefaultWorkingDirectory)/environments/prod'
               environmentServiceNameAzureRM: 'azdev-service-connection'
               commandOptions: '-out=tfplan'
 
           - task: PublishPipelineArtifact@1
             displayName: Publish Plan File
             inputs:
-              targetPath: '$(System.DefaultWorkingDirectory)/environments/${{ parameters.environment }}/tfplan'
+              targetPath: '$(System.DefaultWorkingDirectory)/environments/prod/tfplan'
               artifact: 'tfplan'
 
   - stage: Apply
-    displayName: Terraform Apply - ${{ parameters.environment }}
+    displayName: Terraform Apply - prod
     dependsOn: Plan
     jobs:
       - deployment: TerraformApply
         displayName: Apply with Approval Gate
-        environment: '${{ parameters.environment }}-environment'
+        environment: 'prod-environment'
         strategy:
           runOnce:
             deploy:
@@ -88,25 +71,25 @@ stages:
                   displayName: Download Plan File
                   inputs:
                     artifact: 'tfplan'
-                    path: '$(System.DefaultWorkingDirectory)/environments/${{ parameters.environment }}'
+                    path: '$(System.DefaultWorkingDirectory)/environments/prod'
 
                 - task: TerraformTaskV4@4
                   displayName: Terraform Init
                   inputs:
                     provider: 'azurerm'
                     command: 'init'
-                    workingDirectory: '$(System.DefaultWorkingDirectory)/environments/${{ parameters.environment }}'
+                    workingDirectory: '$(System.DefaultWorkingDirectory)/environments/prod'
                     backendServiceArm: 'azdev-service-connection'
                     backendAzureRmResourceGroupName: '$(TF_STATE_RG)'
                     backendAzureRmStorageAccountName: '$(TF_STATE_SA)'
                     backendAzureRmContainerName: '$(TF_STATE_CONTAINER)'
-                    backendAzureRmKey: '${{ parameters.environment }}.terraform.tfstate'
+                    backendAzureRmKey: 'prod.terraform.tfstate'
 
                 - task: TerraformTaskV4@4
                   displayName: Terraform Apply
                   inputs:
                     provider: 'azurerm'
                     command: 'apply'
-                    workingDirectory: '$(System.DefaultWorkingDirectory)/environments/${{ parameters.environment }}'
+                    workingDirectory: '$(System.DefaultWorkingDirectory)/environments/prod'
                     environmentServiceNameAzureRM: 'azdev-service-connection'
                     commandOptions: 'tfplan'

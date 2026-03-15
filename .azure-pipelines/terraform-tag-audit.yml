@@ -1,0 +1,43 @@
+trigger: none
+
+schedules:
+  - cron: "0 18 * * *"
+    displayName: Daily tag audit at 6 PM IST
+    branches:
+      include:
+        - main
+    always: true
+
+pool:
+  name: self-hosted-local
+
+variables:
+  - group: terraform-dev-vars
+
+stages:
+  - stage: TagAudit
+    displayName: Azure Tag Compliance Audit
+    jobs:
+      - job: RunAudit
+        displayName: Run Tag Audit Script
+        steps:
+
+          - checkout: self
+
+          - task: AzurePowerShell@5
+            displayName: Run Tag Compliance Audit
+            inputs:
+              azureSubscription: 'azdev-service-connection'
+              ScriptType: 'FilePath'
+              ScriptPath: '$(System.DefaultWorkingDirectory)/scripts/Invoke-TagAudit.ps1'
+              ScriptArguments: >
+                -RequiredTags @('Environment','ManagedBy','Project')
+                -FailOnNonCompliance $false
+              azurePowerShellVersion: 'LatestVersion'
+
+          - task: PublishPipelineArtifact@1
+            displayName: Publish Audit Report
+            condition: always()
+            inputs:
+              targetPath: '$(System.DefaultWorkingDirectory)/scripts/tag-audit-report.csv'
+              artifact: 'tag-audit-report'
