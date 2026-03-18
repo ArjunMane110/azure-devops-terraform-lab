@@ -1,7 +1,7 @@
 trigger: none
 
 pool:
-  name: self-hosted-local
+  vmImage: 'windows-latest'
 
 variables:
   - group: terraform-dev-vars
