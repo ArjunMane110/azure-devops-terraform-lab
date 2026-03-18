@@ -9,7 +9,7 @@ schedules:
     always: true
 
 pool:
-  name: self-hosted-local
+  vmImage: 'windows-latest'
 
 variables:
   - group: terraform-dev-vars
