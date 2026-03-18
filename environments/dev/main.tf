@@ -92,6 +92,7 @@ module "nsg" {
   ]
 }
 
+data "azurerm_client_config" "current" {}
 module "keyvault" {
   source = "../../modules/keyvault"
 
