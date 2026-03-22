@@ -59,3 +59,8 @@ variable "nsg_name" {
   description = "Name of the NSG"
   type        = string
 }
+
+variable "kv_name" {
+  description = "Name of the Key Vault"
+  type        = string
+}
