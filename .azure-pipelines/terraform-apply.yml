@@ -5,14 +5,12 @@ trigger:
       - dev
 
 pool:
-  vmImage: 'windows-latest'
+  vmImage: windows-latest
 
 variables:
   - group: terraform-dev-vars
   - name: environment
     value: 'dev'
-  - name: approvalEnvironment
-    value: 'dev-environment'
 
 stages:
   - stage: Plan
@@ -34,11 +32,9 @@ stages:
                 Write-Host "Source branch: $source"
                 if ($source -eq "main") {
                   Write-Host "##vso[task.setvariable variable=environment;isOutput=true]prod"
-                  Write-Host "##vso[task.setvariable variable=approvalEnvironment;isOutput=true]prod-environment"
                   Write-Host "Environment set to prod"
                 } else {
                   Write-Host "##vso[task.setvariable variable=environment;isOutput=true]dev"
-                  Write-Host "##vso[task.setvariable variable=approvalEnvironment;isOutput=true]dev-environment"
                   Write-Host "Environment set to dev"
                 }
 
@@ -80,62 +76,56 @@ stages:
     variables:
       - name: environment
         value: $[ stageDependencies.Plan.TerraformPlan.outputs['SetEnv.environment'] ]
-      - name: approvalEnvironment
-        value: $[ stageDependencies.Plan.TerraformPlan.outputs['SetEnv.approvalEnvironment'] ]
     jobs:
-      - deployment: TerraformApply
-        displayName: Apply with Approval Gate
-        environment: $(approvalEnvironment)
-        strategy:
-          runOnce:
-            deploy:
-              steps:
+      - job: TerraformApply
+        displayName: Auto Apply
+        steps:
 
-                - checkout: self
+          - checkout: self
 
-                - task: PowerShell@2
-                  displayName: Set Environment from Source Branch
-                  inputs:
-                    targetType: 'inline'
-                    script: |
-                      $source = "$(Build.SourceBranchName)"
-                      Write-Host "Source branch: $source"
-                      if ($source -eq "main") {
-                        Write-Host "##vso[task.setvariable variable=environment]prod"
-                        Write-Host "Environment set to prod"
-                      } else {
-                        Write-Host "##vso[task.setvariable variable=environment]dev"
-                        Write-Host "Environment set to dev"
-                      }
+          - task: PowerShell@2
+            displayName: Set Environment from Source Branch
+            inputs:
+              targetType: 'inline'
+              script: |
+                $source = "$(Build.SourceBranchName)"
+                Write-Host "Source branch: $source"
+                if ($source -eq "main") {
+                  Write-Host "##vso[task.setvariable variable=environment]prod"
+                  Write-Host "Environment set to prod"
+                } else {
+                  Write-Host "##vso[task.setvariable variable=environment]dev"
+                  Write-Host "Environment set to dev"
+                }
 
-                - task: TerraformInstaller@1
-                  displayName: Install Terraform
-                  inputs:
-                    terraformVersion: 'latest'
+          - task: TerraformInstaller@1
+            displayName: Install Terraform
+            inputs:
+              terraformVersion: 'latest'
 
-                - task: DownloadPipelineArtifact@2
-                  displayName: Download Plan File
-                  inputs:
-                    artifact: 'tfplan'
-                    path: '$(System.DefaultWorkingDirectory)/environments/$(environment)'
+          - task: DownloadPipelineArtifact@2
+            displayName: Download Plan File
+            inputs:
+              artifact: 'tfplan'
+              path: '$(System.DefaultWorkingDirectory)/environments/$(environment)'
 
-                - task: TerraformTaskV4@4
-                  displayName: Terraform Init
-                  inputs:
-                    provider: 'azurerm'
-                    command: 'init'
-                    workingDirectory: '$(System.DefaultWorkingDirectory)/environments/$(environment)'
-                    backendServiceArm: 'azdev-service-connection'
-                    backendAzureRmResourceGroupName: '$(TF_STATE_RG)'
-                    backendAzureRmStorageAccountName: '$(TF_STATE_SA)'
-                    backendAzureRmContainerName: '$(TF_STATE_CONTAINER)'
-                    backendAzureRmKey: '$(environment).terraform.tfstate'
+          - task: TerraformTaskV4@4
+            displayName: Terraform Init
+            inputs:
+              provider: 'azurerm'
+              command: 'init'
+              workingDirectory: '$(System.DefaultWorkingDirectory)/environments/$(environment)'
+              backendServiceArm: 'azdev-service-connection'
+              backendAzureRmResourceGroupName: '$(TF_STATE_RG)'
+              backendAzureRmStorageAccountName: '$(TF_STATE_SA)'
+              backendAzureRmContainerName: '$(TF_STATE_CONTAINER)'
+              backendAzureRmKey: '$(environment).terraform.tfstate'
 
-                - task: TerraformTaskV4@4
-                  displayName: Terraform Apply
-                  inputs:
-                    provider: 'azurerm'
-                    command: 'apply'
-                    workingDirectory: '$(System.DefaultWorkingDirectory)/environments/$(environment)'
-                    environmentServiceNameAzureRM: 'azdev-service-connection'
-                    commandOptions: 'tfplan'
+          - task: TerraformTaskV4@4
+            displayName: Terraform Apply
+            inputs:
+              provider: 'azurerm'
+              command: 'apply'
+              workingDirectory: '$(System.DefaultWorkingDirectory)/environments/$(environment)'
+              environmentServiceNameAzureRM: 'azdev-service-connection'
+              commandOptions: '-auto-approve tfplan'
