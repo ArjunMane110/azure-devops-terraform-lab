@@ -13,3 +13,6 @@ create_public_ip     = true
 storage_account_name = "stdevopslab001"
 nsg_name             = "nsg-devops-lab-dev"
 kv_name              = "kv-ajm-dev-001"
+object_id            = "REDACTED"
+tenant_id            = "REDACTED"
+pipeline_object_id   = "REDACTED"

@@ -64,3 +64,15 @@ variable "kv_name" {
   description = "Name of the Key Vault"
   type        = string
 }
+
+variable "tenant_id" {
+  type = string
+}
+
+variable "object_id" {
+  type = string
+}
+
+variable "pipeline_object_id" {
+  type = string
+}
