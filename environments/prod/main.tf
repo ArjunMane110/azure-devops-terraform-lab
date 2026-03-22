@@ -85,16 +85,12 @@ data "azurerm_client_config" "current" {}
 module "keyvault" {
   source = "../../modules/keyvault"
 
-  kv_name             = "kv-ajm-prod-001"
+  keyvault_name       = var.kv.name
   location            = azurerm_resource_group.main.location
   resource_group_name = azurerm_resource_group.main.name
-
-  tenant_id = data.azurerm_client_config.current.tenant_id
-  object_id = data.azurerm_client_config.current.object_id
-
-  tags = {
-    Environment = "dev"
-    ManagedBy   = "Terraform"
-    Project     = "devops-lab"
-  }
+  environment         = var.environment
+  tenant_id           = var.tenant_id
+  object_id           = var.object_id
+  pipeline_object_id  = var.pipeline_object_id
+  vm_admin_password   = var.admin_password
 }
