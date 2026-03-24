@@ -88,4 +88,4 @@ stages:
               command: 'apply'
               workingDirectory: '$(System.DefaultWorkingDirectory)/environments/prod'
               environmentServiceNameAzureRM: 'azdev-service-connection'
-              commandOptions: '-auto-approve tfplan'
+              commandOptions: '-auto-approve'

@@ -73,3 +73,8 @@ variable "object_id" {
 variable "pipeline_object_id" {
   type = string
 }
+
+variable "log_analytics_name" {
+  description = "Name of Log Analytics Workspace"
+  type        = string
+}
