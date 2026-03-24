@@ -12,3 +12,7 @@ environment          = "prod"
 create_public_ip     = false
 storage_account_name = "stdevopslabprod001"
 nsg_name             = "nsg-devops-lab-prod"
+keyvault_name        = "kv-ajm-prod-001"
+tenant_id            = "REDACTED"
+object_id            = "REDACTED"
+pipeline_object_id   = "REDACTED"
