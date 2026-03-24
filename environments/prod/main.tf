@@ -80,3 +80,17 @@ module "storage" {
   resource_group_name  = azurerm_resource_group.main.name
   environment          = var.environment
 }
+
+data "azurerm_client_config" "current" {}
+module "keyvault" {
+  source = "../../modules/keyvault"
+
+  keyvault_name       = var.keyvault_name
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+  environment         = var.environment
+  tenant_id           = var.tenant_id
+  object_id           = var.object_id
+  pipeline_object_id  = var.pipeline_object_id
+  vm_admin_password   = var.admin_password
+}
