@@ -94,3 +94,17 @@ module "keyvault" {
   pipeline_object_id  = var.pipeline_object_id
   vm_admin_password   = var.admin_password
 }
+
+module "log_analytics" {
+  source = "../../modules/log_analytics"
+
+  name                = "law-ajm-prod-001"
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+
+  tags = {
+    Environment = var.environment
+    ManagedBy   = "Terraform"
+    Project     = "devops-lab"
+  }
+}
