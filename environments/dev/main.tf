@@ -119,3 +119,10 @@ module "log_analytics" {
     Project     = "devops-lab"
   }
 }
+
+module "policy" {
+  source = "../../modules/policy"
+
+  resource_group_id = azurerm_resource_group.main.id
+  environment       = var.environment
+}
