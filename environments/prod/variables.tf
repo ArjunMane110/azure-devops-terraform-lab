@@ -78,3 +78,8 @@ variable "log_analytics_name" {
   description = "Name of Log Analytics Workspace"
   type        = string
 }
+
+variable "lb_name" {
+  description = "Name of the Load Balancer"
+  type        = string
+}

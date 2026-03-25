@@ -126,3 +126,13 @@ module "policy" {
   resource_group_id = azurerm_resource_group.main.id
   environment       = var.environment
 }
+
+module "loadbalancer" {
+  source = "../../modules/loadbalancer"
+
+  lb_name             = var.lb_name
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+  subnet_id           = module.vnet.subnet_id
+  environment         = var.environment
+}
