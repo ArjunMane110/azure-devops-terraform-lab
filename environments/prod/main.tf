@@ -1,14 +1,14 @@
 terraform {
   required_providers {
     azurerm = {
-      source = "hashicorp/azurerm"
+      source  = "hashicorp/azurerm"
       version = "4.63.0"
     }
   }
 }
 
 provider "azurerm" {
-    features {}
+  features {}
 }
 
 resource "azurerm_resource_group" "main" {
@@ -132,7 +132,7 @@ module "vmss" {
   vmss_name            = var.vmss_name
   location             = azurerm_resource_group.main.location
   resource_group_name  = azurerm_resource_group.main.name
-  vm_size              = "Standard_B2s"
+  vm_size              = "Standard_D2s_v3"
   instance_count       = var.instance_count
   admin_username       = var.admin_username
   admin_password       = var.admin_password

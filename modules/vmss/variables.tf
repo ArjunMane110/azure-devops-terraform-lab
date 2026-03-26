@@ -16,7 +16,7 @@ variable "resource_group_name" {
 variable "vm_size" {
   description = "Size of the VM instances"
   type        = string
-  default     = "Standard_B2s"
+  default     = "Standard_D2s_v3"
 }
 
 variable "instance_count" {
