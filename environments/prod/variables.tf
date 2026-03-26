@@ -92,7 +92,7 @@ variable "vmss_name" {
 variable "instance_count" {
   description = "Number of VMSS instances"
   type        = number
-  default     = 1
+  default     = 0
 }
 
 variable "vmss_computer_prefix" {
