@@ -18,3 +18,6 @@ object_id            = "REDACTED"
 pipeline_object_id   = "REDACTED"
 log_analytics_name   = "law-ajm-prod-001"
 lb_name              = "lb-devops-lab-prod"
+vmss_name            = "vmss-devops-prod"
+instance_count       = 1
+vmss_computer_prefix = "vmssPrd01"

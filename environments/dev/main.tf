@@ -136,3 +136,19 @@ module "loadbalancer" {
   subnet_id           = module.vnet.subnet_id
   environment         = var.environment
 }
+
+module "vmss" {
+  source = "../../modules/vmss"
+
+  vmss_name            = var.vmss_name
+  location             = azurerm_resource_group.main.location
+  resource_group_name  = azurerm_resource_group.main.name
+  vm_size              = "Standard_B2s"
+  instance_count       = var.instance_count
+  admin_username       = var.admin_username
+  admin_password       = var.admin_password
+  subnet_id            = module.vnet.subnet_id
+  backend_pool_id      = module.loadbalancer.backend_pool_id
+  environment          = var.environment
+  computer_name_prefix = var.vmss_computer_prefix
+}
