@@ -83,3 +83,19 @@ variable "lb_name" {
   description = "Name of the Load Balancer"
   type        = string
 }
+
+variable "vmss_name" {
+  description = "Name of the VM Scale Set"
+  type        = string
+}
+
+variable "instance_count" {
+  description = "Number of VMSS instances"
+  type        = number
+  default     = 0
+}
+
+variable "vmss_computer_prefix" {
+  description = "Computer name prefix for VMSS (max 9 chars)"
+  type        = string
+}
