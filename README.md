@@ -127,4 +127,4 @@ Azure DevOps | Terraform | Azure | PowerShell | Git | YAML Pipelines
 ## Author
 
 Arjun Mane — Azure Cloud & DevOps Engineer  
-[LinkedIn](https://www.linkedin.com/in/arjunmane-915ba4183)
+[LinkedIn](https://www.linkedin.com/in/arjun-mane-915ba4183/)
