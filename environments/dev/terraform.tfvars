@@ -18,3 +18,6 @@ tenant_id            = "REDACTED"
 pipeline_object_id   = "REDACTED"
 log_analytics_name   = "law-ajm-dev-001"
 lb_name              = "lb-devops-lab-dev"
+vmss_name            = "vmss-devops-dev"
+instance_count       = 0
+vmss_computer_prefix = "vmssDev01"
